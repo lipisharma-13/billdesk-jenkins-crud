@@ -40,15 +40,15 @@ pipeline {
 
         set PID=
 
-        for /f "tokens=5" %%a in ('netstat -ano ^| findstr :9090') do (
+        for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8080') do (
             set PID=%%a
         )
 
         if defined PID (
-            echo Stopping application running on port 9090...
+            echo Stopping application running on port 8080...
             taskkill /F /PID %PID%
         ) else (
-            echo No application is running on port 9090.
+            echo No application is running on port 8080.
         )
 
         exit /b 0
@@ -56,20 +56,25 @@ pipeline {
     }
 }
 
-        stage('Deploy Application') {
-            steps {
-                bat '''
-                @echo off
-                echo Starting Spring Boot Application...
+          stage('Deploy Application') {
+    steps {
+        bat '''
+        @echo off
+        echo Starting Spring Boot Application...
 
-                start "SpringBootApp" cmd /c java -jar target\\*.jar
+        :: Prevent Jenkins from terminating the application
+        set JENKINS_NODE_COOKIE=dontKillMe
 
-                timeout /t 10 > nul
+        :: Start the Spring Boot application in the background
+        start "" javaw -jar target\\standalone_demo-0.0.1-SNAPSHOT.jar > app.log 2>&1
 
-                echo Application Started Successfully.
-                '''
-            }
-        }
+        :: Wait for application startup
+        ping 127.0.0.1 -n 11 > nul
+
+        echo Application Started Successfully.
+        '''
+    }
+}
 
     }
 
