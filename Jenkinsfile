@@ -20,20 +20,7 @@ pipeline {
                     url: 'https://github.com/lipisharma-13/billdesk-jenkins-crud.git'
             }
         }
-
-        stage('Compile') {
-            steps {
-                bat 'mvn clean compile'
-            }
-        }
-
-        stage('Package Application') {
-            steps {
-                bat 'mvn package -DskipTests'
-            }
-        }
-
-        stage('Stop Existing Application') {
+stage('Stop Existing Application') {
     steps {
         bat '''
         @echo off
@@ -55,6 +42,19 @@ pipeline {
         '''
     }
 }
+        stage('Compile') {
+            steps {
+                bat 'mvn clean compile'
+            }
+        }
+
+        stage('Package Application') {
+            steps {
+                bat 'mvn package -DskipTests'
+            }
+        }
+
+        
 
           stage('Deploy Application') {
     steps {
